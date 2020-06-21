@@ -44,20 +44,15 @@ class UrlHandle:
         if self.url_xpath==None:
             # print('请先设置url_xpath参数：')
             self.url_xpath=str(input('请先设置url_xpath参数：'))
-        print(self.driver.page_source)
-        # html = self.driver.execute_script("return document.documentElement.outerHTML")
-        # print(html)
-        # html = self.driver.find_element_by_xpath("//*" ).get_attribute("outerHTML")
-        # print(html)
-        self.wait.until(EC.presence_of_element_located((By.XPATH, self.nextpage_xpath)))
-        print(self.driver.page_source)
+        # print(self.driver.page_source)
+        self.wait.until(EC.presence_of_element_located((By.XPATH, self.url_xpath)))
+        # print(self.driver.page_source)
         elements=self.driver.find_elements_by_xpath(self.url_xpath)
         print(elements)
         print('test',len(elements))
 
         for element in elements:    #find_element_by_xpath('.//a').
             try:
-                print('erw')
                 self.title_urls[element.text]=element.find_element_by_xpath('.//a').get_attribute('href')     #获取具体通知的url与通知title     {titles ：urls}
                 print('test---->',self.title_urls[element.text])
             except Exception as e:

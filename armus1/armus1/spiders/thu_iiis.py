@@ -5,6 +5,8 @@ import scrapy
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 from armus1.items import Armus_Item
+from db_model.db_config import Notification
+from db_model.db_config import DBSession
 
 class ThuIiisSpider(CrawlSpider):
     name = 'thu_iiis'
@@ -22,6 +24,7 @@ class ThuIiisSpider(CrawlSpider):
     def __init__(self, *a, **kw):
         super().__init__(*a, **kw)
         self.college='清华大学交叉信息研究院'
+        self.db=DBSession()
     def parse_item(self, response):
 
         #item['domain_id'] = response.xpath('//input[@id="sid"]/@value').get()
@@ -29,19 +32,30 @@ class ThuIiisSpider(CrawlSpider):
         #item['description'] = response.xpath('//div[@id="description"]').get()
         reports=response.xpath('.//tbody//tr')
         for report in reports:
-            notify_time=''
-            title=report.xpath('./td/a/text()').getall()
-            title = ' '.join(''.join(title).split())
-            # print(notice_url)
-            speaker=report.xpath('./td[2]//text()').getall()
-            speaker=' '.join(''.join(speaker).split())
-            time=report.xpath('./td[3]//text()').get()
-            venue=report.xpath('./td[4]//text()').get()
             notice_url = self.domain_url + report.xpath('./td/a/@href').get()
-            item=Armus_Item(title=title,speaker=speaker,venue=venue,
-                          time=time,url=notice_url,college=self.college,notify_time=notify_time)
-            yield item
+            if self.is_existed_urls(notice_url):
+                continue
+            else:
+                notify_time=''
+                title=report.xpath('./td/a/text()').getall()
+                title = ' '.join(''.join(title).split())
+                # print(notice_url)
+                speaker=report.xpath('./td[2]//text()').getall()
+                speaker=' '.join(''.join(speaker).split())
+                time=report.xpath('./td[3]//text()').get()
+                venue=report.xpath('./td[4]//text()').get()
+                item=Armus_Item(title=title,speaker=speaker,venue=venue,
+                              time=time,url=notice_url,college=self.college,notify_time=notify_time)
+                yield item
         next_page = response.xpath("//ul[@class='pagination']/li[last()-1]/a/@href").extract_first()
         if next_page is not None:
             next_page = response.urljoin(next_page)
             yield scrapy.Request(next_page, callback=self.parse_item)
+
+    def is_existed_urls(self,notice_url):
+        url = self.db.query(Notification.url).filter(notice_url == Notification.college).all()
+        # existed_urls=[]
+        if len(url):
+            return True
+        else:
+            return False
