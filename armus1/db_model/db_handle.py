@@ -73,6 +73,3 @@ def orderbytime():#按照举行时间排序，并且只选中近一年的数据
         print("大学:",t_dict['college'])
         print("通知全文链接:",t_dict['url'])
         print()
-
-delete()
-orderbytime()
