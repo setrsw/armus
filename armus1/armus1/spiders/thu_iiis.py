@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-#清华大学交互信息学院
 
+#清华大学交互信息学院
 import scrapy
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule

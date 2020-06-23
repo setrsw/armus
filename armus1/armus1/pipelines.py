@@ -25,6 +25,7 @@ class ArmusPipeline:
             self.session.commit()
         except Exception as e:
             print(e)
+            self.session.rollback()
             pass
         return item
 

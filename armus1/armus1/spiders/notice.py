@@ -13,12 +13,18 @@ class NoticeSpider(scrapy.Spider):
         super().__init__(**kwargs)
         self.seed=seed
         self.title_urls=title_urls
-        self.start_urls=title_urls.values()
-        print(self.start_urls)
+        self.urls=list(title_urls.values())
         self.information={'title':seed.title, 'speaker':seed.speaker,
                           'time':seed.time, 'venue':seed.venue}
 
-    def parse(self, response):
+    def start_requests(self):
+        urls=self.urls
+        for url in urls:
+            yield scrapy.Request(url=url,callback=self.parse_url,meta={'url':url})
+
+    def parse_url(self, response):
+        #从self.urls中获取url
+        url=response.meta['url']
         item={'url':'','college':'','title':'','speaker':'','time':'','venue':'','notify_time':''}
         texts=[]
         #爬取通知原文的发布时间
@@ -48,21 +54,26 @@ class NoticeSpider(scrapy.Spider):
             #对每个匹配模式进行匹配
             temp_list_k=[]
             for text in texts:
-                text = text.replace('\xa0', '').replace('：', ':').replace('\n', '').strip()
-                for word in v_list:
-                    if word in text.replace(' ',''):
-                        temp=text
-                        if len(text.replace(' ',''))>150:
-                            temp=text.split(':')[1]
-                        if temp not in temp_list_k:
-                            temp_list_k.append(temp)
+                text = text.replace('\xa0', '').replace('：', ':').replace('\r','').replace('\n', '').strip()
+                if '简介' not in text.replace(' ',''):
+                    for word in v_list:
+                        if word in text.replace(' ',''):
+                            temp=text
+                            if len(text.replace(' ',''))>150:
+                                if ':' in text:
+                                    temp=text.split(':')[1]
+                            #判断添加的内容是否与之前内容一样
+                            if temp not in temp_list_k:
+                                temp_list_k.append(temp)
             item[k]=','.join(temp_list_k)   #多个讲座时用‘,’隔开
-        item['url']=response.urljoin('')#获取当前url
+        # item['url']=response.urljoin('')#获取当前url
+        item['url']=url
         item['college']=self.seed.college#获取大学名称
 
         # 通知title位于主通知界面中的情况
+        #实现过程有点困难
         if item['title'] =='':
-            item['title']=list(self.title_urls.keys())[list(self.title_urls.values()).index(item['url'])]
+            item['title']=list(self.title_urls.keys())[list(self.title_urls.values()).index(str(item['url']))]
         #标准通知时间     yyyy-mm-dd
         if notify_time=='':    #通知时间位于主通知界面中的情况
             notify_time=list(self.title_urls.keys())[list(self.title_urls.values()).index(item['url'])]
@@ -92,6 +103,7 @@ class NoticeSpider(scrapy.Spider):
             m='0'+m
         if len(d)==1:
             d='0'+d
+        print(y+'-'+m+"-"+d,'<---------通知时间')
         return y+'-'+m+"-"+d
 
     def format_time(self,time):
@@ -102,4 +114,5 @@ class NoticeSpider(scrapy.Spider):
             h='0'+h
         if len(m)==1:
             m='0'+m
+        print(date+' '+h+':'+m,'<---------讲座时间')
         return date+' '+h+':'+m

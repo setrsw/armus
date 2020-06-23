@@ -26,8 +26,8 @@ class Notification(Base):
     college = Column(String(100))                    #讲座所在大学
     speaker = Column(String(150))                    #讲座演讲人
     venue = Column(String(100))                      #讲座地点
-    time = Column(String(50))                     #讲座时间
-    notify_time = Column(String(50))
+    time = Column(DATETIME)                     #讲座时间
+    notify_time = Column(DATE)
 
 class Seed(Base):
 

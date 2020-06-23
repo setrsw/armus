@@ -42,11 +42,8 @@ class UrlHandle:
 
     def parse_urls(self):
         if self.url_xpath==None:
-            # print('请先设置url_xpath参数：')
             self.url_xpath=str(input('请先设置url_xpath参数：'))
-        # print(self.driver.page_source)
         self.wait.until(EC.presence_of_element_located((By.XPATH, self.url_xpath)))
-        # print(self.driver.page_source)
         elements=self.driver.find_elements_by_xpath(self.url_xpath)
         print(elements)
         print('test',len(elements))
@@ -102,10 +99,6 @@ class UrlHandle:
                 del self.title_urls[title]
 
     #过滤已经爬取的网站
-    # def filte_existed_url(self):
-    #     for url in self.title_urls.values():
-    #         if url not in self.existed_urls:
-    #             self.urls.append(url)
     def filte_existed_url(self):
         # temp_title_urls=self.title_urls
         for title in list(self.title_urls.keys()):

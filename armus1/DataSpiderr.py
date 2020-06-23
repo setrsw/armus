@@ -21,7 +21,7 @@ class Data_Spider:
         #设置默认值
         # self.title_word=str(input('请输入学术讲座通知的匹配关键字：'))
         self.title = '报告题目:,学术报告:,题目,报告主题:,Title'        #(默认值)
-        self.speaker = '报告人:,主讲人:,汇报人:,Speaker'
+        self.speaker = '报告人:,主讲人:,汇报人:,Speaker,报告专家'
         self.venue = '地点:,Address,Venue,Place'
         self.time = '日期:,时间:,Time'
 
@@ -88,6 +88,8 @@ class Data_Spider:
         notify_time_xpath=str(input('请输入具体通知页面下，爬取通知时间的xpath路径,默认为空(不存在就不必输入)：'))
         self.set_notify_time_xpath(notify_time_xpath)
         #上述五条信息必须输入，下面的信息可以选择性输入
+        title_word=str(input('请输入总通知页面下通知标题的字符匹配规则：（可选择不输入）'))
+        self.title_word=title_word
         title=str(input('请输入报告标题的字符匹配规则：（可选择不输入）'))
         self.set_title(title)
         speaker = str(input('请输入报告人的字符匹配规则：（可选择不输入）'))
@@ -171,3 +173,10 @@ class Data_Spider:
 #放在主程序执行
 spider=Data_Spider()
 spider.start_spider()
+
+#请输入需要爬取的学校的通知网址：http://sist.swjtu.edu.cn/list.do?action=news&navId=40
+# 请输入需要爬取的学校（学院）的名称：西南交通大学信息科学与技术学院
+# 请输入通知网站下一页的xpath选择器路径：//div[@class="tableFootLeft"]//a[text()="下一页"]
+# 请输入通知网站下每个具体网站超链接的xpath路径：//*[@id="rightPageContent"]/dl//dd
+# 请输入具体通知页面下，爬取通知正文每行文字的xpath路径：//*[@id="newsBody"]//p
+# 请输入具体通知页面下，爬取通知时间的xpath路径,默认为空(不存在就不必输入)：//*[@id="newsInfo"]
