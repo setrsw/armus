@@ -3,8 +3,10 @@
 # from db_model.seeds import Seed
 from db_model.db_config import DBSession
 # from db_model.notifications import Notification
-from db_model.db_config import Seed
-from db_model.db_config import Notification
+# from db_model.db_config import Seed
+# from db_model.db_config import Notification
+from db_model.seeds import Seed
+from db_model.notifications import Notification
 from UrlHandle import UrlHandle
 
 from armus1.spiders.notice import NoticeSpider
@@ -12,6 +14,8 @@ from armus1.spiders.thu_iiis import ThuIiisSpider
 # scrapy api
 from scrapy.utils.project import get_project_settings
 from scrapy.crawler import CrawlerProcess
+
+from selenium_spider import SeleniumSpider
 
 class Data_Spider:
     def __init__(self):
@@ -57,22 +61,22 @@ class Data_Spider:
         else:
             self.notify_time_xpath=''
 
-    def set_title(self,title):
-        if len(title)>0:
-            self.title=self.title+','+title
-        self.title=self.title.replace('，',',')
-    def set_speaker(self,speaker):
-        if len(speaker)>0:
-            self.speaker=self.speaker+','+speaker
-        self.speaker=self.speaker.replace('，',',')
-    def set_venue(self,venue):
-        if len(venue)>0:
-            self.venue=self.venue+','+venue
-        self.venue = self.venue.replace('，', ',')
-    def set_time(self,time):
-        if len(time)>0:
-            self.time=self.time+','+time
-        self.time = self.time.replace('，', ',')
+    # def set_title(self,title):
+    #     if len(title)>0:
+    #         self.title=self.title+','+title
+    #     self.title=self.title.replace('，',',')
+    # def set_speaker(self,speaker):
+    #     if len(speaker)>0:
+    #         self.speaker=self.speaker+','+speaker
+    #     self.speaker=self.speaker.replace('，',',')
+    # def set_venue(self,venue):
+    #     if len(venue)>0:
+    #         self.venue=self.venue+','+venue
+    #     self.venue = self.venue.replace('，', ',')
+    # def set_time(self,time):
+    #     if len(time)>0:
+    #         self.time=self.time+','+time
+    #     self.time = self.time.replace('，', ',')
 
     def insert_seed(self,college_url):
         # college_url=str(input('请输入需要爬取的学校的通知网址：'))
@@ -90,17 +94,18 @@ class Data_Spider:
         #上述五条信息必须输入，下面的信息可以选择性输入
         title_word=str(input('请输入总通知页面下通知标题的字符匹配规则：（可选择不输入）'))
         self.title_word=title_word
-        title=str(input('请输入报告标题的字符匹配规则：（可选择不输入）'))
-        self.set_title(title)
-        speaker = str(input('请输入报告人的字符匹配规则：（可选择不输入）'))
-        self.set_speaker(speaker)
-        venue = str(input('请输入报告地点的字符匹配规则：（可选择不输入）'))
-        self.set_venue(venue)
-        time = str(input('请输入报告时间的字符匹配规则：（可选择不输入）'))
-        self.set_time(time)
+        # title=str(input('请输入报告标题的字符匹配规则：（可选择不输入）'))
+        # self.set_title(title)
+        # speaker = str(input('请输入报告人的字符匹配规则：（可选择不输入）'))
+        # self.set_speaker(speaker)
+        # venue = str(input('请输入报告地点的字符匹配规则：（可选择不输入）'))
+        # self.set_venue(venue)
+        # time = str(input('请输入报告时间的字符匹配规则：（可选择不输入）'))
+        # self.set_time(time)
         seed=Seed(start_url= self.college_url,college= self.college,url_xpath= self.url_xpath,
                      nextpage_xpath= self.next_xpath,title_word= self.title_word,notice_time_xpath= self.notify_time_xpath,
-                     title= self.title,speaker= self.speaker,venue= self.venue,time= self.time,text_xpath= self.text_xpath)
+                    # title=self.title, speaker=self.speaker, venue=self.venue, time=self.time,
+                     text_xpath= self.text_xpath)
         self.db.add(seed)
         self.db.commit()
         return seed
@@ -125,8 +130,10 @@ class Data_Spider:
         urlHandle.set_nextpage_xpath(seed.nextpage_xpath)
         urlHandle.set_url_xpath(seed.url_xpath)
         title_urls=urlHandle.get_filte_urls()
-        self.process.crawl(NoticeSpider,seed,title_urls)
-        self.process.start()
+        selenium_spider = SeleniumSpider(seed, title_urls)
+        selenium_spider.start_selenium()
+        # self.process.crawl(NoticeSpider,seed,title_urls)
+        # self.process.start()
 
     #单个学校学术信息爬取
     def university_spider(self,seed):
@@ -178,5 +185,5 @@ spider.start_spider()
 # 请输入需要爬取的学校（学院）的名称：西南交通大学信息科学与技术学院
 # 请输入通知网站下一页的xpath选择器路径：//div[@class="tableFootLeft"]//a[text()="下一页"]
 # 请输入通知网站下每个具体网站超链接的xpath路径：//*[@id="rightPageContent"]/dl//dd
-# 请输入具体通知页面下，爬取通知正文每行文字的xpath路径：//*[@id="newsBody"]//p
+# 请输入具体通知页面下，爬取通知正文每行文字的xpath路径：//*[@id="newsBody"]
 # 请输入具体通知页面下，爬取通知时间的xpath路径,默认为空(不存在就不必输入)：//*[@id="newsInfo"]

@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 
 #清华大学交互信息学院
+import re
+from datetime import datetime
+
 import scrapy
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 from armus1.items import Armus_Item
-from db_model.db_config import Notification
+# from db_model.db_config import Notification
+from db_model.notifications import Notification
 from db_model.db_config import DBSession
 
 class ThuIiisSpider(CrawlSpider):
@@ -43,6 +47,7 @@ class ThuIiisSpider(CrawlSpider):
                 speaker=report.xpath('./td[2]//text()').getall()
                 speaker=' '.join(''.join(speaker).split())
                 time=report.xpath('./td[3]//text()').get()
+                # time=self.format_time(time,notify_time)
                 venue=report.xpath('./td[4]//text()').get()
                 item=Armus_Item(title=title,speaker=speaker,venue=venue,
                               time=time,url=notice_url,college=self.college,notify_time=notify_time)
@@ -59,3 +64,93 @@ class ThuIiisSpider(CrawlSpider):
             return True
         else:
             return False
+
+    def format_time(self,time,notify_time):
+        #匹配****年**月**日(下午)HH:MM
+        if re.search(r'.*?(\d{4}).(\d+).(\d+)..*?(\d+).+(\d+)', time):
+            st=re.search(r'.*?(\d{4}).(\d+).(\d+)..*?(\d+).+(\d+)', time)
+            y = st.group(1)
+            mon = st.group(2)
+            d = st.group(3)
+            if len(y) == 2:
+                y = '20' + y
+            if len(mon) == 1:
+                mon = '0' + mon
+            if len(d) == 1:
+                d = '0' + d
+            h = st.group(4)
+            if re.search(r'.*?(\d{4}).(\d+).(\d+)..*?下午(\d+).+(\d+)', time):
+                h=str(int(h)+12)
+            min = st.group(5)
+            if len(h) == 1:
+                h = '0' + h
+            if len(min) == 1:
+                min = '0' + min
+        # 匹配****年**月**日(下午)HH
+        elif re.search(r'.*?(\d{4}).(\d+).(\d+)..*?(\d+)', time):
+            st=re.search(r'.*?(\d{4}).(\d+).(\d+)..*?(\d+)', time)
+            y = st.group(1)
+            mon = st.group(2)
+            d = st.group(3)
+            if len(y) == 2:
+                y = '20' + y
+            if len(mon) == 1:
+                mon = '0' + mon
+            if len(d) == 1:
+                d = '0' + d
+            h = st.group(4)
+            if re.search(r'.*?(\d{4}).(\d+).(\d+)..*?下午(\d+).', time):
+
+                h=str(int(h)+12)
+            if len(h) == 1:
+                h = '0' + h
+            min='00'
+        # 匹配**月**日(下午)HH:MM
+        elif re.search(r'.*?(\d{1,2}).(\d+)..*?(\d+).+(\d*)',time):
+            st=re.search(r'.*?(\d{1,2}).(\d+)..*?(\d+).+(\d*)',time)
+            y=notify_time.split('-')[0]
+            mon=st.group(1)
+            d=st.group(2)
+            h=st.group(3)
+            min=st.group(4)
+            if re.search(r'.*?(\d{1,2}).(\d+)..*?下午(\d+).+(\d*)',time):
+                h=str(int(h)+12)
+            if len(y)==1:
+                y='0'+y
+            if len(mon) == 1:
+                mon = '0' + mon
+            if len(d) == 1:
+                d = '0' + d
+            if len(h) == 1:
+                h = '0' + h
+            if len(min) == 1:
+                min = '0' + min
+        # 匹配**月**日(下午)HH
+        elif re.search(r'.*?(\d{1,2}).(\d+)..*?(\d+).',time):
+            st=re.search(r'.*?(\d{1,2}).(\d+)..*?(\d+).',time)
+            y=notify_time.split('-')[0]
+            mon=st.group(1)
+            d=st.group(2)
+            h=st.group(3)
+            if re.search(r'.*?(\d{1,2}).(\d+)..*?下午(\d+).',time):
+                h=str(int(h)+12)
+            if len(y)==1:
+                y='0'+y
+            if len(mon) == 1:
+                mon = '0' + mon
+            if len(d) == 1:
+                d = '0' + d
+            if len(h) == 1:
+                h = '0' + h
+            min='00'
+            #(r'.*?(\d+).(\d+)..*?(\d+).+(\d*)')
+            # (r'.*?(\d+).(\d+)..*?下午(\d+).*?+(\d*)')
+        else:
+            y='2000'
+            mon='01'
+            d='01'
+            h='00'
+            min='00'
+        report_time_=y+'-'+mon+'-'+d+' '+h+":"+min
+        time_=datetime.strptime(report_time_,'%Y-%m-%d %H:%M')
+        return time_

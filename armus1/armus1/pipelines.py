@@ -7,8 +7,8 @@
 
 #db_model
 from scrapy.exceptions import DropItem
-from db_model.db_config import Notification
-# from db_model.notifications import Notification
+# from db_model.db_config import Notification
+from db_model.notifications import Notification
 from db_model.db_config import DBSession
 
 class ArmusPipeline:

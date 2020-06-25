@@ -5,15 +5,14 @@ import datetime
 from datetime import timedelta
 
 # 初始化数据库连接:
-engine = create_engine('mysql+pymysql://root:12345678@localhost:3306/notice_information')
-#=create_engine('sqlite:///universitys.db')
+engine=create_engine('sqlite:///universitys.db')
 # 创建DBSession类型:
 DBSession = sessionmaker(bind=engine)
 
 Base = declarative_base()
 class Notification(Base):
 
-    """the class map to table of crystal.notifications"""
+    """the class map to table of db_model.notifications"""
 
     __tablename__ = 'notifications'
 
