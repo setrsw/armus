@@ -6,6 +6,7 @@
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 
 #db_model
+import re
 from scrapy.exceptions import DropItem
 # from db_model.db_config import Notification
 from db_model.notifications import Notification
@@ -50,4 +51,10 @@ class ArmusPipeline:
             item['time'] = ''
 
         if item['notify_time']=='':
-            item['notify_time'] = item['time']
+            if re.search('\d{4}\D{1,2}\d{1,2}\D{1,2}\d{1,2}',item['time']):
+                nt=re.search('(\d{4})\D{1,2}(\d{1,2})\D{1,2}(\d{1,2})',item['time'])
+                y=nt.group(1)
+                m=nt.group(2)
+                d=nt.group(3)
+                item['notify_time']=y+'-'+m+'-'+d
+            # item['notify_time'] = item['time']

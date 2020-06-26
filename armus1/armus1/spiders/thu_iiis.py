@@ -152,5 +152,5 @@ class ThuIiisSpider(CrawlSpider):
             h='00'
             min='00'
         report_time_=y+'-'+mon+'-'+d+' '+h+":"+min
-        time_=datetime.strptime(report_time_,'%Y-%m-%d %H:%M')
-        return time_
+        # time_=datetime.strptime(report_time_,'%Y-%m-%d %H:%M')
+        return report_time_
