@@ -16,14 +16,14 @@ class Seed(Base):
     college = Column(String)            #待爬取学校学院的名称
     url_xpath = Column(String)          #总的通知网页下，每个通知的超链接的xpath选择路径
     nextpage_xpath=Column(String)       #总的通知网页下，下一页标签的xpath选择路径
-    title_word = Column(String)               #选取有关我们需要的通知的关键词
+    title_word = Column(String)         #选取有关我们需要的通知的关键词
     notice_time_xpath=Column(String)    #通知时间的xpath选择器规则
+    text_xpath = Column(String)         #具体通知页面下，爬取通知正文的xpath选择器规则
+
     # title= Column(String)              #通知标题匹配格式
     # speaker = Column(String)            #讲座演讲人匹配格式
     # venue = Column(String)              #讲座地点匹配格式
     # time = Column(String)               #讲座时间匹配格式
-    text_xpath = Column(String)         #具体通知页面下，爬取通知正文的xpath选择器规则
-
 
     def set_init_data(self,db):
         #默认需要爬取的5个学校的配置信息

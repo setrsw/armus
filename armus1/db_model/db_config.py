@@ -3,13 +3,10 @@
 from sqlalchemy import create_engine, Column, String, DATETIME, DATE, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-
+# from sqlalchemy.pool import Pool
 import redis
-# import pymysql
-# pymysql.install_as_MySQLdb()
-# 初始化数据库连接:
-# engine = create_engine('mysql+pymysql://root:Tr120156317@localhost:3306/notice_information')
-engine=create_engine('sqlite:///universitys.db')
+
+engine=create_engine('sqlite:///universitys.db',pool_recycle=3600)
 # 创建DBSession类型:
 DBSession = sessionmaker(bind=engine)
 

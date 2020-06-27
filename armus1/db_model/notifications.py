@@ -1,11 +1,8 @@
 # coding=utf-8
-from sqlalchemy import *
-from sqlalchemy.orm import *
-from sqlalchemy.ext.declarative import *
 import datetime
 from datetime import timedelta
-# from sqlalchemy import Column, String, DATE, DATETIME, Text
-# from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, String, DATE, DATETIME, Text, create_engine, and_, or_, desc
+from sqlalchemy.ext.declarative import declarative_base
 # import pymysql
 # pymysql.install_as_MySQLdb()
 from db_model.db_config import DBSession
@@ -27,58 +24,65 @@ class Notification(Base):
     time = Column(String(255))                     #讲座时间
     notify_time = Column(String(20))                  #通知发布时间
 
-    # def __init__(self):
+    # def __init__(self):                       scrapy框架+selenium
     #     self.session = DBSession()
     #     Base.metadata.create_all(engine)
     #     self.info_byrelease=[] #按照通知时间
     #     self.info_bytime=[]    #按照讲座时间
 
-    def delete(self):  # 进行筛选操作，选出标题中含有密码学和信息安全的数据，清空表格，再插入选中的数据
-        # session = DBSession()
-        self.session = DBSession()
-        temp = self.session.query(Notification).filter(
-            or_(Notification.title.like("%密码学%"), Notification.title.like("%信息安全%"))).all()
-        temp_Eng = self.session.query(Notification).filter(
-            or_(Notification.title.like("%security%"), Notification.title.like("%password%"))).all()
-
-        self.session.query(Notification).delete()
-        self.session.commit()
-
-        for t in temp:
-            t_dict = t.__dict__
-            try:
-                frank = Notification(url=t_dict['url'],title=t_dict['title'], speaker=t_dict['speaker'],
-                                 time=t_dict['time'],venue=t_dict['venue'], college=t_dict['college'],
-                                 notify_time=t_dict['notify_time'])
-                self.session.add(frank)
-                self.session.commit()
-            except:
-                self.session.rollback()
-                pass
-        for t in temp_Eng:
-            t_dict = t.__dict__
-            try:
-                frank = Notification(title=t_dict['title'], speaker=t_dict['speaker'], time=t_dict['time'],
-                                     venue=t_dict['venue'], college=t_dict['college'], url=t_dict['url'],
-                                     notify_time=t_dict['notify_time'])
-                self.session.add(frank)
-                self.session.commit()
-            except:
-                self.session.rollback()
-                pass
+    # def delete(self):  # 进行筛选操作，选出标题中含有密码学和信息安全的数据，清空表格，再插入选中的数据
+    #     # session = DBSession()
+    #     self.session = DBSession()
+    #     temp = self.session.query(Notification).filter(
+    #         or_(Notification.title.like("%密码学%"), Notification.title.like("%信息安全%"))).all()
+    #     temp_Eng = self.session.query(Notification).filter(
+    #         or_(Notification.title.like("%security%"), Notification.title.like("%password%"))).all()
+    #
+    #     self.session.query(Notification).delete()
+    #     self.session.commit()
+    #
+    #     for t in temp:
+    #         t_dict = t.__dict__
+    #         try:
+    #             frank = Notification(url=t_dict['url'],title=t_dict['title'], speaker=t_dict['speaker'],
+    #                              time=t_dict['time'],venue=t_dict['venue'], college=t_dict['college'],
+    #                              notify_time=t_dict['notify_time'])
+    #             self.session.add(frank)
+    #             self.session.commit()
+    #         except:
+    #             self.session.rollback()
+    #             pass
+    #     for t in temp_Eng:
+    #         t_dict = t.__dict__
+    #         try:
+    #             frank = Notification(title=t_dict['title'], speaker=t_dict['speaker'], time=t_dict['time'],
+    #                                  venue=t_dict['venue'], college=t_dict['college'], url=t_dict['url'],
+    #                                  notify_time=t_dict['notify_time'])
+    #             self.session.add(frank)
+    #             self.session.commit()
+    #         except:
+    #             self.session.rollback()
+    #             pass
 
     def orderbyrelease(self):  # 按照发布时间排序，并且只选中近一年的数据
         # session = DBSession()
         self.session = DBSession()
         self.info_byrelease=[]
+        # temp = self.session.query(Notification).filter(
+        #     Notification.notify_time >= datetime.datetime.now() - timedelta(days=365)).order_by(
+        #     desc(Notification.notify_time)).all()
         temp = self.session.query(Notification).filter(
-            Notification.notify_time >= datetime.datetime.now() - timedelta(days=365)).order_by(
-            desc(Notification.notify_time)).all()
+            and_(Notification.notify_time >= datetime.datetime.now() - timedelta(days=365),  # 时间
+                 or_(Notification.title.like("%密码学%"),
+                     Notification.title.like("%信息安全%"),
+                     Notification.title.like("%security%"),
+                     Notification.title.like("%password%"))  # 筛选信息
+                 )).order_by(desc(Notification.notify_time)).all()
         print("按照通知发布时间由近及远排序：")
         for t in temp:
             t_dict = t.__dict__
             info={'title':t_dict['title'],'speaker':t_dict['speaker'],'time':t_dict['time'],
-                  'venue':t_dict['venue'],'college':t_dict['college'],'url':t_dict['url']}
+                  'venue':t_dict['venue'],'college':t_dict['college'],'url':t_dict['url'],'notiify_time':t_dict['notiify_time']}
             self.info_byrelease.append(info)
         print(self.info_byrelease)
             # print("讲座标题:", t_dict['title'])
@@ -93,14 +97,21 @@ class Notification(Base):
     def orderbytime(self):  # 按照举行时间排序，并且只选中近一年的数据
         self.session = DBSession()
         self.info_bytime=[]
+        # temp = self.session.query(Notification).filter(
+        #     Notification.notify_time >= datetime.datetime.now() - timedelta(days=365)).order_by(
+        #     desc(Notification.time)).all()
         temp = self.session.query(Notification).filter(
-            Notification.notify_time >= datetime.datetime.now() - timedelta(days=365)).order_by(
-            desc(Notification.time)).all()
+            and_(Notification.time >= datetime.datetime.now() - timedelta(days=365),  # 时间
+                 or_(Notification.title.like("%密码学%"),
+                     Notification.title.like("%信息安全%"),
+                     Notification.title.like("%security%"),
+                     Notification.title.like("%password%"))  # 筛选信息
+                 )).order_by(desc(Notification.notify_time)).all()
         print("按照报告举行时间由近及远排序：")
         for t in temp:
             t_dict = t.__dict__
             info = {'title': t_dict['title'], 'speaker': t_dict['speaker'], 'time': t_dict['time'],
-                    'venue': t_dict['venue'], 'college': t_dict['college'], 'url': t_dict['url']}
+                    'venue': t_dict['venue'], 'college': t_dict['college'], 'url': t_dict['url'],'notiify_time':t_dict['notiify_time']}
             self.info_bytime.append(info)
         # print(self.info_bytime)
             # print("讲座标题:", t_dict['title'])
@@ -110,10 +121,10 @@ class Notification(Base):
             # print("大学:", t_dict['college'])
             # print("通知全文链接:", t_dict['url'])
             # print()
-    def get_info_bytime(self):
+    def get_info_bytime(self):#获取按讲座时间排序的讲座信息
         return self.info_bytime
 
-    def get_info_byrelease(self):
+    def get_info_byrelease(self):#获取按通知时间排序的讲座信息
         return self.info_byrelease
 
 Base.metadata.create_all(engine)

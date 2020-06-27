@@ -8,7 +8,6 @@ import scrapy
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 from armus1.items import Armus_Item
-# from db_model.db_config import Notification
 from db_model.notifications import Notification
 from db_model.db_config import DBSession
 

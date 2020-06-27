@@ -61,9 +61,9 @@ class SeleniumSpider:
                 temp_list_k = []
                 for text in texts:
                     text = text.replace('\xa0', '').replace('：', ':').replace('\r', '').replace('\n', '').strip()
-                    if '简介' not in text.replace(' ', '') or '介绍' not in text.replace(' ', ''):
+                    if '简介' not in text.replace(' ', '') and '介绍' not in text.replace(' ', ''):
                         for word in v_list:
-                            if word in text.replace(' ', ''):
+                            if word in text.replace(' ', ''):#防止英文之间的空格被去除
                                 temp = text
                                 if len(text.replace(' ', '')) > 150:
                                     if ':' in text:
@@ -146,7 +146,7 @@ class SeleniumSpider:
                                         speaker=item['speaker'], venue=item['venue'], time=item['time'],
                                         notify_time=item['notify_time'])
             # 存入数据库Notification
-            self.session.add(notification)
+            self.session.add(notification)              #sqlalchemy
             self.session.commit()
         except Exception as e:
             print(e)

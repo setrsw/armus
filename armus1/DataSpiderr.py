@@ -1,15 +1,14 @@
 
+
+#项目需要的库
 #数据库
 # from db_model.seeds import Seed
 from db_model.db_config import DBSession
-# from db_model.notifications import Notification
-# from db_model.db_config import Seed
-# from db_model.db_config import Notification
 from db_model.seeds import Seed
 from db_model.notifications import Notification
 from UrlHandle import UrlHandle
 
-from armus1.spiders.notice import NoticeSpider
+# from armus1.spiders.notice import NoticeSpider
 from armus1.spiders.thu_iiis import ThuIiisSpider
 # scrapy api
 from scrapy.utils.project import get_project_settings
@@ -28,6 +27,7 @@ class Data_Spider:
         self.speaker = '报告人:,主讲人:,汇报人:,Speaker,报告专家'
         self.venue = '地点:,Address,Venue,Place'
         self.time = '日期:,时间:,Time'
+        self.title_word=''
 
     # 初始化seed表格数据
     def init_seed_data(self):
@@ -52,8 +52,8 @@ class Data_Spider:
         self.text_xpath=text_xpath
 
     #多个关键词用","隔开
-    def set_title_word(self,title_word):
-        self.title_word=title_word
+    def set_title_word(self):
+        self.title_word=''
 
     def set_notify_time_xpath(self,notify_time_xpath):
         if len(notify_time_xpath)>0:
@@ -61,6 +61,7 @@ class Data_Spider:
         else:
             self.notify_time_xpath=''
 
+    # 关键字设置，现已废除
     # def set_title(self,title):
     #     if len(title)>0:
     #         self.title=self.title+','+title
@@ -78,22 +79,25 @@ class Data_Spider:
     #         self.time=self.time+','+time
     #     self.time = self.time.replace('，', ',')
 
-    def insert_seed(self,college_url):
+    # def insert_seed(self,college_url):
+    def insert_seed(self):
         # college_url=str(input('请输入需要爬取的学校的通知网址：'))
-        self.set_college_url(college_url)
-        college = str(input('请输入需要爬取的学校（学院）的名称：'))
-        self.set_college(college)
-        next_xpath=str(input('请输入通知网站下一页的xpath选择器路径：'))
-        self.set_next_xpath(next_xpath)
-        url_xpath=str(input('请输入通知网站下每个具体网站超链接的xpath路径：'))
-        self.set_url_xpath(url_xpath)
-        text_xpath=str(input('请输入具体通知页面下，爬取通知正文每行文字的xpath路径：'))
-        self.set_text_xpath(text_xpath)
-        notify_time_xpath=str(input('请输入具体通知页面下，爬取通知时间的xpath路径,默认为空(不存在就不必输入)：'))
-        self.set_notify_time_xpath(notify_time_xpath)
-        #上述五条信息必须输入，下面的信息可以选择性输入
-        title_word=str(input('请输入总通知页面下通知标题的字符匹配规则：（可选择不输入）'))
-        self.title_word=title_word
+
+        # 设置图形化界面后忽略这一部分
+        # self.set_college_url(college_url)
+        # college = str(input('请输入需要爬取的学校（学院）的名称：'))
+        # self.set_college(college)
+        # next_xpath=str(input('请输入通知网站下一页的xpath选择器路径：'))
+        # self.set_next_xpath(next_xpath)
+        # url_xpath=str(input('请输入通知网站下每个具体网站超链接的xpath路径：'))
+        # self.set_url_xpath(url_xpath)
+        # text_xpath=str(input('请输入具体通知页面下，爬取通知正文每行文字的xpath路径：'))
+        # self.set_text_xpath(text_xpath)
+        # notify_time_xpath=str(input('请输入具体通知页面下，爬取通知时间的xpath路径,默认为空(不存在就不必输入)：'))
+        # self.set_notify_time_xpath(notify_time_xpath)
+        # #上述五条信息必须输入，下面的信息可以选择性输入
+        # title_word=str(input('请输入总通知页面下通知标题的字符匹配规则：（可选择不输入）'))
+        # self.title_word=title_word
         # title=str(input('请输入报告标题的字符匹配规则：（可选择不输入）'))
         # self.set_title(title)
         # speaker = str(input('请输入报告人的字符匹配规则：（可选择不输入）'))
@@ -102,13 +106,17 @@ class Data_Spider:
         # self.set_venue(venue)
         # time = str(input('请输入报告时间的字符匹配规则：（可选择不输入）'))
         # self.set_time(time)
-        seed=Seed(start_url= self.college_url,college= self.college,url_xpath= self.url_xpath,
-                     nextpage_xpath= self.next_xpath,title_word= self.title_word,notice_time_xpath= self.notify_time_xpath,
-                    # title=self.title, speaker=self.speaker, venue=self.venue, time=self.time,
-                     text_xpath= self.text_xpath)
-        self.db.add(seed)
-        self.db.commit()
-        return seed
+        try:
+            seed=Seed(start_url= self.college_url,college= self.college,url_xpath= self.url_xpath,
+                         nextpage_xpath= self.next_xpath,title_word= self.title_word,notice_time_xpath= self.notify_time_xpath,
+                        # title=self.title, speaker=self.speaker, venue=self.venue, time=self.time,
+                         text_xpath= self.text_xpath)
+            self.db.add(seed)
+            self.db.commit()
+        except Exception as e:
+            print(e)
+            self.db.rollback()
+            print('插入数据失败')
 
     #单个指定学校爬取
     def get_existed_urls(self,seed):
@@ -152,34 +160,34 @@ class Data_Spider:
             #对于每个学校直接调用单个学校爬取函数
             self.university_spider(seed)
 
-    def start_spider(self):
-        is_one_spider=str(input('爬取一个学校学术信息(y),多个学校学术信息（n）？y/n'))
-        while True:
-            print(is_one_spider)
-            if is_one_spider in ['y','Y','yes','Yes']:
-                college_url = str(input('请输入需要爬取的学校的通知网址：'))
-                seed = self.db.query(Seed).filter(Seed.start_url == college_url).all()
-                if len(seed)==0:
-                    seed=self.insert_seed(college_url)
-                    self.university_spider(seed)
-                else:
-                    self.university_spider(seed[0])
-                is_continue=str(input(('爬取完成，是否继续？y/n')))
-                if is_continue in ['y','Y','yes','Yes']:
-                    is_one_spider = str(input('爬取一个学校学术信息(y),多个学校学术信息（n）？y/n'))
-                else:
-                    break
-            elif is_one_spider in ['n','no','No','N']:
-                self.universities_spider()
-                print('所有信息爬取完成！')
-                break
-            else:
-                print('你的输入错误，请重新输入：')
-                is_one_spider=str(input('爬取一个学校学术信息(y),多个学校学术信息（n）？y/n'))
+    # def start_spider(self):
+    #     is_one_spider=str(input('爬取一个学校学术信息(y),多个学校学术信息（n）？y/n'))
+    #     while True:
+    #         print(is_one_spider)
+    #         if is_one_spider in ['y','Y','yes','Yes']:
+    #             college_url = str(input('请输入需要爬取的学校的通知网址：'))
+    #             seed = self.db.query(Seed).filter(Seed.start_url == college_url).all()
+    #             if len(seed)==0:
+    #                 seed=self.insert_seed(college_url)
+    #                 self.university_spider(seed)
+    #             else:
+    #                 self.university_spider(seed[0])
+    #             is_continue=str(input(('爬取完成，是否继续？y/n')))
+    #             if is_continue in ['y','Y','yes','Yes']:
+    #                 is_one_spider = str(input('爬取一个学校学术信息(y),多个学校学术信息（n）？y/n'))
+    #             else:
+    #                 break
+    #         elif is_one_spider in ['n','no','No','N']:
+    #             self.universities_spider()
+    #             print('所有信息爬取完成！')
+    #             break
+    #         else:
+    #             print('你的输入错误，请重新输入：')
+    #             is_one_spider=str(input('爬取一个学校学术信息(y),多个学校学术信息（n）？y/n'))
 
 #放在主程序执行
-spider=Data_Spider()
-spider.start_spider()
+# spider=Data_Spider()
+# spider.start_spider()
 
 #请输入需要爬取的学校的通知网址：http://sist.swjtu.edu.cn/list.do?action=news&navId=40
 # 请输入需要爬取的学校（学院）的名称：西南交通大学信息科学与技术学院
@@ -187,3 +195,10 @@ spider.start_spider()
 # 请输入通知网站下每个具体网站超链接的xpath路径：//*[@id="rightPageContent"]/dl//dd
 # 请输入具体通知页面下，爬取通知正文每行文字的xpath路径：//*[@id="newsBody"]
 # 请输入具体通知页面下，爬取通知时间的xpath路径,默认为空(不存在就不必输入)：//*[@id="newsInfo"]
+
+# http://cs.gzu.edu.cn/forum.php?mod=forumdisplay&fid=57&page=1
+# 贵州大学计算机科学与技术学院
+# //*[@id="newsList"]//p
+# //*[@id="bmbw0pgscl"]/div//a[text()='下一页']
+# //*[@id="ct"]/div[1]/div/div[1]/p
+# //td[@class="t_f"]

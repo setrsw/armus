@@ -1,97 +1,139 @@
-import tkinter as tk
-import tkinter.messagebox  # 要使用messagebox先要导入模块
+import time
+
+from PySide2 import QtGui
+
+from PySide2 import QtCore
+from PySide2.QtCore import Qt
+    # (QCoreApplication, QDate, QDateTime, QMetaObject,
+    # QObject, QPoint, QRect, QSize, QTime, QUrl, Qt)
+# from PySide2.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont,
+#                            QFontDatabase, QIcon, QKeySequence, QLinearGradient, QPalette, QPainter,
+#                            QPixmap, QRadialGradient, QStandardItemModel, QStandardItem)
+from PySide2.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
+from PySide2.QtWidgets import QApplication, QMessageBox
+
+from DataSpiderr import Data_Spider
 from db_model.notifications import *
-notification=Notification()
 
-window= tk.Tk()
-window.title('学术信息爬取系统')
-window.geometry('800x600') # 这里的乘号不是 * ，而是小写英文字母 x
+from db_model.seeds import Seed
+from mainWindow import Ui_armus
+# from db_model.notifications import Notification
 
-#part1：显示默认学校网址
-li  = ['华工软件学院 http://www.scut.edu.cn/sse/ \n',\
-    '华工计算机学院 http://www.scut.edu.cn/cs/ \n',\
-    '暨南大学信息学院 http://xxxy.jnu.edu.cn/ \n' ,\
-    '华南农业大学信息学院 http://info.scau.edu.cn/news-cate-3.asp \n',\
-    '北京大学信息学院 http://eecs.pku.edu.cn/ \n',\
-    '清华大学交叉信息学院 http://iiis.tsinghua.edu.cn/zh/seminars/ \n',\
-    '信息安全国家重点实验室 http://sklois.iie.cas.cn/tzgg/tzgg_16520/ \n',\
-    '上海交通大学, http://www.cs.sjtu.edu.cn/NewNotice.aspx \n']
-def hit_me():
-    tkinter.messagebox.showinfo(title='默认学校网址', message=li) 
+class Stats(Ui_armus):
+    def __init__(self):
+        # 从文件中加载UI定义
+        # qfile=QFile(r'E:\Pycharm\armus1\ui\armus1.ui')
+        # qfile.open(QFile.ReadOnly)
+        # # qfile_stats.close()
+        # # 从 UI 定义中动态 创建一个相应的窗口对象
+        # # 注意：里面的控件对象也成为窗口对象的属性了
+        # # 比如 self.ui.button , self.ui.textEdit
+        # # loader=QUiLoader()
+        # self.ui=QUiLoader().load(qfile)
+        # self.ui.show()
+        super(Stats,self).__init__()
+        # self.ui=Ui_armus()
 
-a1 = tk.Label(window,text='点击查看默认抓取的学术网址：',\
-        fg='black',\
-        font=('微软雅黑',12),width=100,height=2)
-a1.pack()
-btn1 = tk.Button(window, text='查看', bg='white', font=('Arial', 11), command=hit_me)
-btn1.pack(fill=tk.BOTH)
+        # self.tableView.setModel()
+        db=QSqlDatabase.addDatabase('QSQLITE')
+        db.setDatabaseName('universitys.db')
+        self.spider=Data_Spider()#爬虫连接
+        self.session=DBSession()#数据库连接
+        self.setupUi(self)
+        # self.query=QSqlQuery(db)
+        self.init_connect_db()
+        # self.model = QStandardItemModel()  # 存储任意结构数据
+        # self.model=QSqlQueryModel()
+        self.comboBox.activated[str].connect(self.orderinfo)
+        self.pushButton.clicked.connect(self.add_college)
+        self.pushButton_2.clicked.connect(self.update_college)
+        self.pushButton_4.clicked.connect(self.spider_info)
+        # self.pushButton_3.clicked.connect(self.help_info)
+        self.comboBox_2.activated[str].connect(self.link_collegeurl)
 
-#part2：选择排序方式
-a3 = tk.Label(window,text='请选择排序方式：',\
-        fg='black',\
-        font=('微软雅黑',11),width=100,height=1)
-a3.pack()
-var = tk.StringVar()    # 定义一个var用来将radiobutton的值和Label的值联系在一起
-# 其中variable=var, value='A'的意思是当鼠标选中了其中一个选项
-# 把value的值A放到变量var中，然后赋值给variable
-r1 = tk.Radiobutton(window, text='按举行时间排序', command=notification.orderbytime)
-# s1 = notification.get_info_bytime()
-r1.pack()
-r2 = tk.Radiobutton(window, text='按通知发布时间来排序',command=notification.orderbyrelease)
-# s1=notification.get_info_byrelease()
-r2.pack()
+    #初始化连接数据库
+    def init_connect_db(self):
+        self.model = QSqlTableModel()
+        self.tableView.setModel(self.model)
+        self.model.setTable('notifications')
+        self.model.setHeaderData(0, Qt.Horizontal, "全文链接")
+        self.model.setHeaderData(1, Qt.Horizontal, "讲座标题")
+        self.model.setHeaderData(2, Qt.Horizontal, "报告大学")
+        self.model.setHeaderData(3, Qt.Horizontal, "报告人")
+        self.model.setHeaderData(4, Qt.Horizontal, "报告地点")
+        self.model.setHeaderData(5, Qt.Horizontal, "举办时间")
+        self.model.setHeaderData(6, Qt.Horizontal, "发布时间")
+        # self.model.setFilter('college="华南理工大学软件学院"')
+        self.model.select()
 
-#part3：讲座信息显示
-a3 = tk.Label(window,text='学术讲座信息显示如下：',\
-        fg='black',\
-        font=('微软雅黑',12),width=100,height=2)
-a3.pack(fill=tk.X)
-#创建表格,注意：不要试图在一个主窗口中混合使用pack和grid
-list1 = ['      标题', '报告人', '时间','地点','大学','通知链接']
-s1 = [' ',' ',' ',' ',' ',' ']
-notification.orderbytime()
-s2 = notification.get_info_bytime()
-print(s2)
-#用insert()方法每次从文本框txt的尾部（END）开始追加文本。
-def AddTitle():
-    for i in range(6):
-        s1[i]=str(list1[i])+'      '
-        txt.insert(tk.END,s1[i])
-txt=tk.Text(window)
-txt.pack()
-AddTitle()
+    #排序筛选信息
+    def orderinfo(self,text):
+        if text=="按举办时间排序":
+            # print('按举办时间排序')
+            self.model.setFilter('title like "%%密码%" or title like "%%安全%" or title like "%security%"')
+            self.model.setSort(5,Qt.DescendingOrder)
+            self.model.select()
 
-def Addinfo():
-    for info in s2:
-        print(list(info.values()))
-        list_info=list(info.values())
-        for text in list_info:
-            txt.insert(tk.END,str(text)+'   ')
-txt=tk.Text(window)
-txt.pack()
-Addinfo()
+        elif text=='按发布时间排序':
+            # print('按发布时间排序')
+            self.model.setFilter('title like "%%密码%" or title like "%%安全%" or title like "%security%"')
+            self.model.setSort(6, Qt.DescendingOrder)
+            self.model.select()
+        else:
+            self.model.setFilter('url like "%%"')
+            self.model.select()
 
-
-#part4：备注部分
-a4 = tk.Label(window,text='注：只抓取与信息安全，密码学相关的学术报告信息；只显示近一个月的公告',\
-        fg='black',\
-        font=('微软雅黑',11),width=100,height=2)
-a4.pack(fill=tk.X)
-btn2 = tk.Button(window, text='点击刷新列表',\
-     font=('Arial', 10), \
-     width=10, height=1,\
-     command=hit_me)
-btn2.pack()
+            # QMessageBox.critical(NULL, "critical", "Content", QMessageBox.Yes, QMessageBox.Yes) #带按键
 
 
-#part5：添加新网址
-a5 = tk.Label(window,text='点击添加新网址：',\
-        fg='black',\
-        font=('微软雅黑',11),width=100,height=2)
-a5.pack(fill=tk.X,side=tk.LEFT)
-btn2 = tk.Button(window, text='添加',\
-     font=('Arial', 10), \
-     width=10, height=1,)   #缺少command属性
-btn2.pack(fill=tk.X,side=tk.LEFT)
+    def add_college(self):  #添加学校网页
+        url=self.lineEdit_6.text()
+        college=self.lineEdit.text()
+        nextpage=self.lineEdit_2.text()
+        url_xpath=self.lineEdit_3.text()
+        text_xpath=self.lineEdit_4.text()
+        notify_time=self.lineEdit_5.text()
+        time.sleep(1)
+        self.spider.set_college_url(url)
+        self.spider.set_college(college)
+        self.spider.set_next_xpath(nextpage)
+        self.spider.set_url_xpath(url_xpath)
+        self.spider.set_text_xpath(text_xpath)
+        self.spider.set_notify_time_xpath(notify_time)
+        self.spider.set_title_word()
+        self.spider.insert_seed()
 
-window.mainloop()
+    def update_college(self):
+        list_college=self.session.query(Seed).all()
+        num=self.comboBox_2.count()
+        colleges=[]
+        for i in range(num):
+            colleges.append(self.comboBox_2.itemText(i))
+        for row in list_college:
+            if row.college not in colleges:
+                self.comboBox_2.addItem(row.college)
+
+    def link_collegeurl(self,text):
+        college=self.session.query(Seed).filter(Seed.college==text).first()
+        if college!=None:
+            self.lineEdit_6.setText(college.start_url)
+            self.model.setFilter('college="%s"'%(text))
+            self.model.select()
+        else:
+            self.lineEdit_6.setText('')
+            self.model.select()
+    def spider_info(self):
+        self.spider.universities_spider()
+        MESSAGE = "更新/爬取学术信息完成"
+        msgBox = QMessageBox(QMessageBox.Question,
+                             "提示", MESSAGE,
+                             QMessageBox.NoButton, self)
+        msgBox.addButton("确定", QMessageBox.AcceptRole)
+        msgBox.exec_()
+
+if __name__=='__main__':
+    app=QApplication([])
+    stats=Stats()
+    stats.show()
+    app.exec_()
+
