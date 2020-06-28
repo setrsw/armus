@@ -47,7 +47,8 @@ class Stats(Ui_armus):
         self.comboBox.activated[str].connect(self.orderinfo)
         self.pushButton.clicked.connect(self.add_college)
         self.pushButton_2.clicked.connect(self.update_college)
-        self.pushButton_4.clicked.connect(self.spider_info)
+        self.pushButton_4.clicked.connect(self.spiders_info)
+        self.pushButton_5.clicked.connect(self.spider_info)
         # self.pushButton_3.clicked.connect(self.help_info)
         self.comboBox_2.activated[str].connect(self.link_collegeurl)
 
@@ -71,13 +72,13 @@ class Stats(Ui_armus):
         if text=="按举办时间排序":
             # print('按举办时间排序')
             self.model.setFilter('title like "%%密码%" or title like "%%安全%" or title like "%security%"')
-            self.model.setSort(5,Qt.DescendingOrder)
+            self.model.setSort(5,Qt.DescendingOrder)#按举办时间降序
             self.model.select()
 
         elif text=='按发布时间排序':
             # print('按发布时间排序')
             self.model.setFilter('title like "%%密码%" or title like "%%安全%" or title like "%security%"')
-            self.model.setSort(6, Qt.DescendingOrder)
+            self.model.setSort(6, Qt.DescendingOrder)#按发布时间降序
             self.model.select()
         else:
             self.model.setFilter('url like "%%"')
@@ -87,13 +88,13 @@ class Stats(Ui_armus):
 
 
     def add_college(self):  #添加学校网页
-        url=self.lineEdit_6.text()
+        url=self.lineEdit_7.text()
         college=self.lineEdit.text()
         nextpage=self.lineEdit_2.text()
         url_xpath=self.lineEdit_3.text()
         text_xpath=self.lineEdit_4.text()
         notify_time=self.lineEdit_5.text()
-        time.sleep(1)
+
         self.spider.set_college_url(url)
         self.spider.set_college(college)
         self.spider.set_next_xpath(nextpage)
@@ -101,7 +102,7 @@ class Stats(Ui_armus):
         self.spider.set_text_xpath(text_xpath)
         self.spider.set_notify_time_xpath(notify_time)
         self.spider.set_title_word()
-        self.spider.insert_seed()
+        self.spider.insert_seed(self.session)
 
     def update_college(self):
         list_college=self.session.query(Seed).all()
@@ -122,7 +123,7 @@ class Stats(Ui_armus):
         else:
             self.lineEdit_6.setText('')
             self.model.select()
-    def spider_info(self):
+    def spiders_info(self):
         self.spider.universities_spider()
         MESSAGE = "更新/爬取学术信息完成"
         msgBox = QMessageBox(QMessageBox.Question,
@@ -131,6 +132,16 @@ class Stats(Ui_armus):
         msgBox.addButton("确定", QMessageBox.AcceptRole)
         msgBox.exec_()
 
+    def spider_info(self):
+        text=self.comboBox_2.currentText()
+        college = self.session.query(Seed).filter(Seed.college == text).first()
+        self.spider.university_spider(college)
+        MESSAGE = "更新/爬取学术信息完成"
+        msgBox = QMessageBox(QMessageBox.Question,
+                             "提示", MESSAGE,
+                             QMessageBox.NoButton, self)
+        msgBox.addButton("确定", QMessageBox.AcceptRole)
+        msgBox.exec_()
 if __name__=='__main__':
     app=QApplication([])
     stats=Stats()

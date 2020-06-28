@@ -80,9 +80,11 @@ class Data_Spider:
     #     self.time = self.time.replace('，', ',')
 
     # def insert_seed(self,college_url):
-    def insert_seed(self):
-        # college_url=str(input('请输入需要爬取的学校的通知网址：'))
+    # def insert_seed_test(self):
+    #     self.insert_seed()
 
+    def insert_seed(self,db):
+        # college_url=str(input('请输入需要爬取的学校的通知网址：'))
         # 设置图形化界面后忽略这一部分
         # self.set_college_url(college_url)
         # college = str(input('请输入需要爬取的学校（学院）的名称：'))
@@ -111,11 +113,11 @@ class Data_Spider:
                          nextpage_xpath= self.next_xpath,title_word= self.title_word,notice_time_xpath= self.notify_time_xpath,
                         # title=self.title, speaker=self.speaker, venue=self.venue, time=self.time,
                          text_xpath= self.text_xpath)
-            self.db.add(seed)
-            self.db.commit()
+            db.add(seed)
+            db.commit()
         except Exception as e:
             print(e)
-            self.db.rollback()
+            db.rollback()
             print('插入数据失败')
 
     #单个指定学校爬取
@@ -198,7 +200,7 @@ class Data_Spider:
 
 # http://cs.gzu.edu.cn/forum.php?mod=forumdisplay&fid=57&page=1
 # 贵州大学计算机科学与技术学院
-# //*[@id="newsList"]//p
-# //*[@id="bmbw0pgscl"]/div//a[text()='下一页']
-# //*[@id="ct"]/div[1]/div/div[1]/p
-# //td[@class="t_f"]
+# url_xpath=//*[@id="newsList"]//p
+# nextpage=//*[@id="bmbw0pgscl"]/div//a[text()='下一页']
+# notify_time=//*[@id="ct"]/div[1]/div/div[1]/p
+# 通知全文=//td[@class="t_f"]

@@ -12,13 +12,13 @@ class Seed(Base):
     """the class map to table of crystal.seeds"""
     __tablename__ = 'seeds'
 
-    start_url = Column(String, primary_key=True)    #待爬取学校学院的学术通知网址
-    college = Column(String)            #待爬取学校学院的名称
-    url_xpath = Column(String)          #总的通知网页下，每个通知的超链接的xpath选择路径
-    nextpage_xpath=Column(String)       #总的通知网页下，下一页标签的xpath选择路径
-    title_word = Column(String)         #选取有关我们需要的通知的关键词
-    notice_time_xpath=Column(String)    #通知时间的xpath选择器规则
-    text_xpath = Column(String)         #具体通知页面下，爬取通知正文的xpath选择器规则
+    start_url = Column(String(255), primary_key=True)    #待爬取学校学院的学术通知网址
+    college = Column(String(25))            #待爬取学校学院的名称
+    url_xpath = Column(String(255))          #总的通知网页下，每个通知的超链接的xpath选择路径
+    nextpage_xpath=Column(String(255))       #总的通知网页下，下一页标签的xpath选择路径
+    title_word = Column(String(255))         #选取有关我们需要的通知的关键词
+    notice_time_xpath=Column(String(255))    #通知时间的xpath选择器规则
+    text_xpath = Column(String(255))         #具体通知页面下，爬取通知正文的xpath选择器规则
 
     # title= Column(String)              #通知标题匹配格式
     # speaker = Column(String)            #讲座演讲人匹配格式

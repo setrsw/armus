@@ -2,38 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8d336a4d-0954-4bd9-8a9b-5567dda1633a" name="Default Changelist" comment="">
-      <change afterPath="$APPLICATION_HOME_DIR$/.idea/PyCharm Community Edition 2019.2.1.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../WYY_music_comments_spider/.idea/WYY_music_comments_spider.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../academic_report_spiders/.idea/academic_report_spiders.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../armus/.idea/armus.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../pandas_study/.idea/pandas_study.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../pccold-master/.idea/pccold-master.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../pic/.idea/pic.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../project-01/.idea/project-01.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../project/.idea/project.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../python_Internet_sprite/.idea/python_Internet_sprite.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../qsbk/.idea/qsbk.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../scrapy_test/.idea/scrapy_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DataSpiderr.py" beforeDir="false" afterPath="$PROJECT_DIR$/DataSpiderr.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LICENSE" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LICENSE.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UrlHandle.py" beforeDir="false" afterPath="$PROJECT_DIR$/UrlHandle.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/armus1/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/armus1/items.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/armus1/middlewares.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/armus1/pipelines.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/armus1/settings.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/armus1/spiders/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/armus1/spiders/notice.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/armus1/spiders/thu_iiis.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/db_model/db_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/db_model/db_config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db_model/notifications.py" beforeDir="false" afterPath="$PROJECT_DIR$/db_model/notifications.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db_model/seeds.py" beforeDir="false" afterPath="$PROJECT_DIR$/db_model/seeds.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/interface.py" beforeDir="false" afterPath="$PROJECT_DIR$/interface.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/selenium_spider.py" beforeDir="false" afterPath="$PROJECT_DIR$/selenium_spider.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/interface1.ui" beforeDir="false" afterPath="$PROJECT_DIR$/interface1.ui" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mainWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/mainWindow.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/universitys.db" beforeDir="false" afterPath="$PROJECT_DIR$/universitys.db" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
